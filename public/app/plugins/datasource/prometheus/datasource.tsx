@@ -716,6 +716,33 @@ export class PrometheusDatasource
     }
 
     const step = options.annotation.step || ANNOTATION_QUERY_STEP_DEFAULT;
+    if (this.access === 'direct') {
+      const start = this.getPrometheusTime(options.range.from, false);
+      const end = this.getPrometheusTime(options.range.to, true);
+      const queryOptions = { ...options, interval: step };
+
+      const queryModel = {
+        expr,
+        interval: step,
+        refId: 'X',
+        requestId: `prom-query-${annotation.name}`,
+      };
+      const query = this.createQuery(queryModel, queryOptions, start, end);
+      return await lastValueFrom(
+        this.performTimeSeriesQuery(query, query.start, query.end).pipe(
+          map((response: FetchResponse<PromDataSuccessResponse<PromMatrixData>>) => {
+            const frames: DataFrame[] = transform(response, {
+              query: query,
+              target: queryModel,
+              responseListLength: 1,
+              exemplarTraceIdDestinations: this.exemplarTraceIdDestinations,
+            });
+            return this.processAnnotationResponse(options, frames);
+          })
+        )
+      );
+    }
+
     const queryModel = {
       expr,
       range: true,
