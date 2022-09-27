@@ -795,6 +795,7 @@ export class PrometheusDatasource
       const timeValueTuple: Array<[number, number]> = [];
 
       let idx = 0;
+      let previousTimestamp: number;
       valueField.values.toArray().forEach((value: string) => {
         let timeStampValue: number;
         let valueValue: number;
@@ -808,9 +809,11 @@ export class PrometheusDatasource
           timeStampValue = Math.floor(parseFloat(time));
           valueValue = parseFloat(value);
         }
-
         idx++;
-        timeValueTuple.push([timeStampValue, valueValue]);
+        if (!isNaN(timeStampValue) && timeStampValue !== previousTimestamp) {
+          timeValueTuple.push([timeStampValue, valueValue]);
+          previousTimestamp = timeStampValue;
+        }
       });
 
       const activeValues = timeValueTuple.filter((value) => value[1] >= 1);
@@ -849,7 +852,6 @@ export class PrometheusDatasource
         eventList.push(latestEvent);
       }
     }
-
     return eventList;
   };
 
