@@ -18,6 +18,7 @@ COPY scripts scripts
 COPY emails emails
 
 ENV NODE_ENV production
+RUN npx browserslist@latest --update-db
 RUN yarn build
 
 FROM golang:1.19.3-alpine3.15 as go-builder
@@ -39,7 +40,7 @@ RUN go mod verify
 RUN make build-go
 
 # Final stage
-FROM alpine:3.15.6
+FROM alpine:3.17
 
 LABEL maintainer="Grafana team <hello@grafana.com>"
 
