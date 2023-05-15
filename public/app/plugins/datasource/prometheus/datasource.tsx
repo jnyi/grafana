@@ -842,7 +842,6 @@ export class PrometheusDatasource
           timeStampValue = Math.floor(parseFloat(time));
           valueValue = parseFloat(value);
         }
-
         idx++;
         if (!isNaN(timeStampValue) && timeStampValue !== previousTimestamp) {
           timeValueTuple.push([timeStampValue, valueValue]);
@@ -887,7 +886,6 @@ export class PrometheusDatasource
         eventList.push(latestEvent);
       }
     }
-
     return eventList;
   };
 
